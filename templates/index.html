@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}home{% endblock %}</h1>
+    <p>some explanation</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-container">
+  face regonition is based on the library of <a href="https://github.com/ageitgey/face_recognition">https://github.com/ageitgey/face_recognition</a>
+  <br/><br/>
+  With this library it is possible to analyse images if there are faces in this image. Based on this information it is possible to recognize known faces.
+  To get the known faces for the recognition there is the possibilty to use a neural network to learn a variant of the same face. With this model the recognition get more and more acurate.
+</div>
+{% endblock %}

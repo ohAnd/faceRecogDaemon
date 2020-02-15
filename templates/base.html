@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/apple-touch-icon1.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon2-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon2-16x16.png') }}">
+        <script language="javascript" type="text/javascript" src="static/js/hammer.min.js"></script>
+        <!-- <link rel="manifest" href="img/site.webmanifest"> -->
+        <meta name="msapplication-TileColor" content="#2b5797">
+        <meta name="theme-color" content="#000000">
+        <style>
+            /* Add a left margin to the "page content" that matches the width of the sidebar (120px) */
+            #main {margin-left: 120px}
+        </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename='w3.css') }}">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+        <title>face recognition daemon - {% block title %}{% endblock %}</title>
+        <style>
+            body, h1,h2,h3,h4,h5,h6 {
+                font-family: "Montserrat", sans-serif;
+                background-color: #2d2b2b;
+                color: white;
+            }
+            .w3-row-padding img {margin-bottom: 12px}
+            /* Set the width of the sidebar to 120px */
+            .w3-sidebar {width: 120px;background: #222;}
+        </style>
+    </head>
+    <body>
+        <div class="w3-bar w3-top w3-dark-grey w3-hide-large" >
+            <button  style="z-index:4" class="w3-bar-item w3-button w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+        </div>
+        <nav style="z-index:3" class="w3-sidebar w3-collapse w3-bar-block w3-small w3-center" id="mySidebar">
+            <img src="{{ url_for('static', filename='img/facerecog.jpg') }}" style="width:100%">
+            <a href="#" class="w3-bar-item w3-button w3-padding-16 w3-hide-large w3-hide-medium w3-dark-grey w3-hover-black" onclick="w3_close()" title="close menu">
+                <i class="fa fa-remove fa-fw"></i>Close Menu
+            </a>
+            <a href="{{ url_for('index') }}" class="w3-bar-item w3-button w3-padding-large w3-black" onclick="w3_close();">
+                <i class="fa fa-home w3-xxlarge"></i>
+                <p class="w3-hide-small">HOME</p>
+            </a>
+            <a href="{{ url_for('liveview') }}" class="w3-bar-item w3-button w3-padding-large w3-hover-black" onclick="w3_close();">
+                <i class="fa fa-eye w3-xxlarge"></i>
+                <p class="w3-hide-small">LIVE VIEW</p>
+            </a>
+            <a href="{{ url_for('history') }}" class="w3-bar-item w3-button w3-padding-large w3-hover-black" onclick="w3_close();">
+                <i class="fa fa-history w3-xxlarge"></i>
+                <p class="w3-hide-small">HISTORY</p>
+            </a>
+            <a href="{{ url_for('training') }}" class="w3-bar-item w3-button w3-padding-large w3-hover-black" onclick="w3_close();">
+                <i class="fa fa-user-tag w3-xxlarge"></i>
+                <p class="w3-hide-small">TRAINING</p>
+            </a>
+            <a href="{{ url_for('settings') }}" class="w3-bar-item w3-button w3-padding-large w3-hover-black" onclick="w3_close();">
+                <i class="fa fa-cog w3-xxlarge"></i>
+                <p class="w3-hide-small">SETTINGS</p>
+            </a>
+            <a href="{{ url_for('apiinfo') }}" class="w3-bar-item w3-button w3-padding-large w3-hover-black" onclick="w3_close();">
+                <i class="fa fa-cogs w3-xxlarge"></i>
+                <p class="w3-hide-small">API</p>
+            </a>
+            <p>
+                <hr>
+                <p id="menu_user"></p>
+            </p>
+        </nav>
+        <div class="w3-padding-large" id="main">
+            <header class="w3-container w3-padding-32 w3-center" id="home">
+                <h1 class="w3-jumbo"><span class="w3-hide-small">face recognition daemon</span></h1>
+                <p>the simple way to get a face recognition working</p>
+                {% block header %}{% endblock %}
+            </header>
+            <!-- section -->
+            <div class="w3-padding-32 w3-content w3-text-grey">
+                {% block content %}{% endblock %}
+            </div>
+            <!-- Footer -->
+            <footer class="w3-content w3-padding-64 w3-text-grey w3-xlarge">
+                <p class="w3-medium" id="copyright">2020 - <a href="https://github.com/ohAnd/faceRecogDaemon" target='_blank'>ohAnd</a> - version: {{ g.version }}</p>
+                <p class="w3-medium">Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank" class="w3-hover-text-green">w3.css</a></p>
+            <!-- End footer -->
+            </footer>
+        
+        <!-- END PAGE CONTENT -->
+        </div>
+    </body>
+    <script>
+        //
+        //history.replaceState(null, null, '/');
+        // history.pushState(null, null, '/');
+        // Get the Sidebar
+        var mySidebar = document.getElementById("mySidebar");
+        
+        // Toggle between showing and hiding the sidebar, and add overlay effect
+        function w3_open() {
+            mySidebar.style.display = 'block';
+        }
+        
+        // Close the sidebar with the close button
+        function w3_close() {
+          mySidebar.style.display = "none";
+        }
+        // set nav button bg
+        function setNavButtonBG() {
+            var navUrls = mySidebar.querySelectorAll("a");
+            navUrls.forEach(element => {
+                //remove w3-black and set w3-hover-black
+                element.classList.remove("w3-black");
+                element.classList.add("w3-hover-black");
+                if(window.location.href == element.href) {
+                    element.classList.add("w3-black");
+                    element.classList.remove("w3-hover-black");
+                }
+            });
+        }        
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            setNavButtonBG();
+            // lazy loading of images
+            var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+            if ("IntersectionObserver" in window) {
+                let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        let lazyImage = entry.target;
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImage.srcset = lazyImage.dataset.srcset;
+                        lazyImage.classList.remove("lazy");
+                        lazyImageObserver.unobserve(lazyImage);
+                    }
+                    });
+                });
+
+                lazyImages.forEach(function(lazyImage) {
+                    lazyImageObserver.observe(lazyImage);
+                });
+            } else {
+            // Possibly fall back to a more compatible method here
+            }
+    });
+    touchAndDragFunctions();
+    /** */
+    function touchAndDragFunctions() {
+        /** “I can’t select my text anymore!” - Hammer is setting a property to improve the UX of the panning on desktop. Regularly, the desktop browser would select the text while you drag over the page. The user-select css property disables this. If you care about the text-selection and not so much about the desktop experience, you can simply remove this option from the defaults. Make sure you do this before creating an instance.*/
+        delete Hammer.defaults.cssProps.userSelect;
+
+        var sideNav = document.getElementById('mySidebar');
+        var sideNavOpen = document.getElementById('main');
+
+        /** close sidenav when slide menu to left */
+
+        var panleftSideNav = new Hammer.Manager(sideNav);
+        panleftSideNav.add( new Hammer.Pan({ direction: Hammer.DIRECTION_LEFT, threshold: 50 }) );
+        panleftSideNav.on("panleft", function(ev) {
+            w3_close();
+        });
+        var tabSideNav = new Hammer.Manager(sideNavOpen);
+        tabSideNav.add( new Hammer.Tap({ event: 'singletap' }) );
+        tabSideNav.on("singletap", function(ev) {
+            w3_close();
+        });
+        /** open sidenav when slide on screen to right */
+        var panrightSideNav = new Hammer.Manager(sideNavOpen);
+        panrightSideNav.add( new Hammer.Pan({ direction: Hammer.DIRECTION_RIGHT, threshold: 75 }) );
+        panrightSideNav.on("panright", function(ev) {
+            w3_open();
+        });
+    }
+    </script>
+</html>

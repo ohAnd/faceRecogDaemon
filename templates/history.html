@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+<style type="text/css">
+    .loading { background-image: url(loading.gif); }
+    .loaderror { background-image: url(loaderror.gif); }
+</style>
+
+{% block header %}
+  <h1>{% block title %}history{% endblock %}</h1>
+    <p>shows the most recent recognized images with faces</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-padding-16 w3-content w3-text-grey" id="settings">
+    <div class="w3-center">
+        <div class="w3-bar" id="paginationHistoryTop"></div> 
+    </div>
+    <div class="w3-section" id="imagehistory">
+    </div>
+    <div class="w3-center">
+        <div class="w3-bar" id="paginationHistoryBottom"></div> 
+    </div>
+</div>
+
+<script type="text/javascript" language="javascript">
+    var globalPersons = '';
+    var maxImagesToShow = 200;
+    var maxImagesInHistory = 0;
+    var imagesPerPage = 10;
+
+    // build the overview at page first loading with 20 images on page
+    buildHistoryImage(1,imagesPerPage,1);
+
+    function createPagination(maxImagesInHistory,actualPage){
+        var myPaginationTop = document.getElementById("paginationHistoryTop");
+        var myPaginationBottom = document.getElementById("paginationHistoryBottom");
+        myPaginationTop.innerHTML = '';
+        myPaginationBottom.innerHTML = '';
+        for(i=1;i<=maxImagesInHistory/imagesPerPage;i++) {
+            var newA = document.createElement("a");
+            newA.setAttribute("class","w3-button");
+            if(actualPage == i) {
+                newA.classList.add("w3-dark-grey");
+            }
+            newA.setAttribute("onClick","clearOverview();buildHistoryImage(" + ((i*imagesPerPage)-imagesPerPage) + ","+i*imagesPerPage+","+i+");window.location.href = '#paginationHistoryTop';");
+            newA.innerText = i;
+            myPaginationTop.appendChild(newA);
+            myPaginationBottom.appendChild(newA.cloneNode(true));
+        }
+        return;
+    }
+
+    // clear the overview if pagination requested
+    function clearOverview(){
+        var myImageHistory = document.getElementById("imagehistory");
+        myImageHistory.innerHTML = '';
+    }
+
+
+    function createImageOverview(recentImageData,numStartOfImages,numEndOfImages) {
+        maxImagesInHistory = recentImageData.overallRecognitons;
+        window.fetch('http://'+window.location.host+'/api/training?getdata=true')
+            .then(function(response){
+                return response.json();
+            }).then(function(json){
+                globalPersons = json.persons;
+        var i;
+        var myImageHistory = document.getElementById("imagehistory");
+        var imageNo=0;
+        recentImageData.recentImages.forEach(element => {
+            imageNo++;
+            if(imageNo >= numStartOfImages && imageNo <= numEndOfImages) {
+                var newdiv = document.createElement("div");
+                newdiv.className = "w3-display-container w3-center w3-padding";
+
+                var new_a = document.createElement("a");
+                new_a.id = element.imageOriginalName;
+                newdiv.appendChild(new_a);
+
+
+                newButtons = document.createElement("div");
+                newButtons.setAttribute("class","w3-display-topmiddle w3-text-white w3-padding-16");
+                newdiv.appendChild(newButtons);
+
+                    newDiv2 = document.createElement("div");
+                    newDiv2.setAttribute("class","w3-dark-grey w3-dropdown-hover");
+
+                        newEdit = document.createElement("span");
+                        newEdit.setAttribute("class","w3-button w3-hover-red");
+                        newDiv2.appendChild(newEdit);
+                        //newEdit.innerText = element.name+" ";
+
+                            newEditi = document.createElement("i");
+                            newEditi.setAttribute("class","fas fa-user-edit");
+                            newEdit.appendChild(newEditi);
+
+                        newdrop = document.createElement("div");
+                        newdrop.setAttribute("class","w3-dropdown-content w3-bar-block w3-border w3-tiny");
+                        newdrop.setAttribute("style","max-height:50vw;overflow:auto;");
+
+                            for (let person in globalPersons) {
+                                newPerson = document.createElement("a");
+                                newPerson.setAttribute("class",'w3-bar-item w3-button');
+                                newPerson.href = 'http://'+window.location.host+'/api/training?rename=true&image='+element.imageOriginalName+'&name='+person
+                                newPerson.innerText = person;
+                                newdrop.appendChild(newPerson);
+                            }
+                            newDiv2.appendChild(newdrop);
+
+                
+                
+                newButtons.appendChild(newDiv2);
+
+                var newimg = document.createElement("img");
+                newimg.className = "lazy w3-image w3-card-4 w3-round";
+                newimg.id = "myImage"+[i];
+                newimg.setAttribute('onerror',"this.src=''")
+                newimg.src = "/static/img/loading.png";
+                if(element.imageTaggedLink == 'notFound') {
+                    newimg.setAttribute("data-src",element.imageOriginalLink+[i]+'&rand=' + Math.random());
+                } else {
+                    newimg.setAttribute("data-src",element.imageTaggedLink+[i]+'&rand=' + Math.random());
+                }
+                newimg.setAttribute("data-srcset","");
+                newdiv.appendChild(newimg);
+
+                myImageHistory.appendChild(newdiv);
+            }
+        });
+        // jump to anchor after loading
+        var givenAnchor = location.hash;
+        if(givenAnchor != '') {
+            window.location.href = givenAnchor; 
+        } 
+        // lazy image loading
+        var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+        if ("IntersectionObserver" in window) {
+            let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    let lazyImage = entry.target;
+                    lazyImage.src = lazyImage.dataset.src;
+                    lazyImage.srcset = lazyImage.dataset.srcset;
+                    lazyImage.classList.remove("lazy");
+                    lazyImageObserver.unobserve(lazyImage);
+                }
+                });
+            });
+
+            lazyImages.forEach(function(lazyImage) {
+                lazyImageObserver.observe(lazyImage);
+            });
+        } else {
+        // Possibly fall back to a more compatible method here
+        }
+        // console.log(globalPersons);
+            return true;
+        });       
+    }
+    function buildHistoryImage(numStartOfImages,numEndOfImages,actualPage) {
+        window.fetch('http://'+window.location.host+'/api/get_recent_image?json=true&limit='+maxImagesToShow)
+        .then(function(response){
+            return response.json();
+        }).then(function(json){
+            return createImageOverview(json,numStartOfImages,numEndOfImages);
+        }).then(function(){ return createPagination(maxImagesInHistory,actualPage); });
+    }
+</script>
+
+{% endblock %}

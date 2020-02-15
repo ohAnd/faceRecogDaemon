@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}settings{% endblock %}</h1>
+    <p>check and make your settings</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-padding-32 w3-content w3-text-grey" id="settings">
+    <div class="w3-section">
+        <div class="w3-responsive">
+            <table class="w3-table w3-bordered">
+                <tr class="w3-dark-grey">
+                    <th>Setting Parameter</th>
+                    <th>Value</th>
+                    <th></th>
+                </tr class="w3-dark-grey">
+                <tr>
+                    <td>url to image src</td>
+                    <td><a href="{{ config['urlToImageSrc'] }}">{{ config['urlToImageSrc'] }}</a></td>
+                    <td>
+                        <button class="w3-button">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>folder for checked images</td>
+                    <td>{{ config['pathToImageArchive'] }}</td>
+                    <td>
+                        <button class="w3-button">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>knn distance</td>
+                    <td>{{ config['knnDistance'] }}</td>
+                    <td>
+                        <button class="w3-button">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

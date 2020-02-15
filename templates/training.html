@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}training face prediction{% endblock %}</h1>
+    <p>for good face recognization the possible faces have to be trained</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-padding-16 w3-content w3-text-grey" id="settings">
+    <div class="w3-section">
+        <h3>restart training</h3>
+        <div id="btn_retrain" class="w3-button w3-black" onclick="requestRetrain()">
+            retrain all faces
+        </div>
+
+        <p>If you made changes in the training data directory, you can trigger here a rescan</p>
+    </div>
+    <div id="progDiv" class="w3-container w3-padding-32 w3-hide w3-animate-opacity">
+        <div class="w3-light-grey">
+            <div id="progressBar" class="w3-grey w3-center" style="height:24px;width:50%"></div>
+        </div>
+    </div>
+    <script>
+        function requestRetrain() {
+            var progress = document.getElementById('progDiv');
+            var progressText = document.getElementById('btn_retrain');
+            var progressBar = document.getElementById('progressBar');
+            progress.classList.remove("w3-hide");
+            progressBar.innerText = '';
+            progressText.innerText = 'retraining - is running ...';
+            // progressBar.innerHTML = '<b>retraining - is running ...</b>';
+            var pos=0;
+            var dir = 0;
+            var progTimer = setInterval(function(){
+                progressBar.style.width = pos+"%";
+                if(dir==0) { pos = pos + 1; }
+                else { pos = pos - 1;}
+                if(pos > 99 && dir == 0) {
+                    dir = 1;
+                } else if(pos < 1 && dir == 1){
+                    dir = 0;
+                }
+            }, 30);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/training?retrain=true', true);
+            // xhr.onprogress = function(e) { 
+            //     var div = document.getElementById('train_progress');
+            //     div.innerHTML = 'Waiting ' + this.readyState + ':' + this.responseText;
+            // };
+            xhr.onreadystatechange = function(e) {
+                // progress.innerText = 'Hier ' + this.readyState + ':' + this.responseText;
+                // progress.classList.add("w3-hide")
+                progressBar.style.width = "100%";
+                progressText.innerText = 'retrain all faces';
+                progressBar.innerHTML = '<b>retraining needed '+xhr.responseText+' - done</b>';
+                clearInterval(progTimer);
+            };
+            xhr.send();
+        }
+    </script>
+    <div class="w3-section">
+        <h3>edit/ mark last recognized images</h3>
+        <p>for the last seen faces, you can change the recognition or add the image to the training data</p>
+    </div>
+    <div class="w3-section">
+        <h3>training data overview</h3>
+        <p>what persons are in data and how many iamges are used for training</p>
+        <div class="w3-responsive">
+            <table class="w3-table w3-bordered" id="trainingData">
+                <tr class="w3-dark-grey">
+                    <th>name</th>
+                    <th class="w3-center">no. of images</th>
+                    <th></th>
+                </tr>
+                <!-- {% for i in persons %}
+                <tr>
+                    <td>{{i}}</td>
+                    <td  class="w3-center">{{persons[i]['count']}}</td>
+                    <td class="w3-center w3-mobile">
+                        <button class="w3-button"><i class="fas fa-plus-square"></i></button>
+                        <button class="w3-button"><i class="fas fa-edit"></i></button>
+                        <button class="w3-button"><i class="fas fa-eye"></i></button>
+                    </td>
+                </tr>
+                <tr><td colspan="3">
+                    {% for imageCnt in range(0,persons[i]['count']) %}
+                    <img class="lazy w3-image" 
+                        style="width:50px;cursor:zoom-in;" 
+                        src="/static/img/loading.png" 
+                        data-src='http://{{ values["hostlink"] }}/api/get_train_image?person={{i}}&number={{imageCnt}}'
+                        data-srcset=""
+                        onclick="document.getElementById('modal_{{i}}_{{imageCnt}}').style.display='block'"
+                    >
+                    <div id="modal_{{i}}_{{imageCnt}}" class="w3-modal" style="background-color:rgba(0,0,0,0.8);">
+                        <div class="w3-modal-content w3-animate-zoom">
+                            <div class="w3-display-topright w3-text-white">
+                                <span class="w3-button w3-hover-red w3-xlarge"><i class="fas fa-edit"></i></span>
+                                <span class="w3-button w3-hover-red w3-xlarge" onclick="document.getElementById('modal_remove_{{i}}_{{imageCnt}}').style.display='block'"><i class="fas fa-trash"></i></span>                            
+                                <span class="w3-button w3-hover-red w3-xlarge" onclick="document.getElementById('modal_{{i}}_{{imageCnt}}').style.display='none';"><i class="fas fa-times"></i></span>
+                            </div>
+                            <img
+                                src='http://{{ values["hostlink"] }}/api/get_train_image?person={{i}}&number={{imageCnt}}'
+                                style="width:100%"
+                                onclick="document.getElementById('modal_{{i}}_{{imageCnt}}').style.display='none';"
+                            >
+                        </div>
+                    </div>
+                    <div id="modal_remove_{{i}}_{{imageCnt}}" class="w3-modal">
+                        <div class="w3-modal-content w3-center" onclick="document.getElementById('modal_remove_{{i}}_{{imageCnt}}').style.display='none';">
+                            <p class="w3-container w3-dark-grey w3-padding-32">Do you want to remove this image from training data?
+                                <p class="w3-container">
+                                    <span class="w3-button w3-hover-red w3-xlarge w3-text-green"><i class="fas fa-check"></i></span>
+                                    <span class="w3-button w3-hover-red w3-xlarge w3-text-red"><i class="fas fa-times"></i></span>
+                                </p>
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </td></tr>
+                {% endfor %} -->
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" language="javascript">
+    var globalPersons = '';
+    window.fetch('http://'+window.location.host+'/api/training?getdata=true')
+        .then(function(response){
+            return response.json();
+        }).then(function(json){
+            globalPersons = json.persons;
+            var i;
+            var myTrainingData = document.getElementById("trainingData");
+            for(person in globalPersons) {
+                var newTR = document.createElement("tr");
+                    var newTD1 = document.createElement("td"); // name
+                    newTD1.innerText = person;
+                    newTR.appendChild(newTD1);
+                    var newTD2 = document.createElement("td"); // count
+                    newTD2.setAttribute("class","w3-center");
+                    newTD2.innerText = globalPersons[person].count;
+                    newTR.appendChild(newTD2);
+                    var newTD3 = document.createElement("td"); // buttons
+                    newTR.appendChild(newTD3);
+                var newTR2 = document.createElement("tr");
+                    var newTD2_1 = document.createElement("td"); // name
+                    newTD2_1.setAttribute("colspan","3");
+                    // for(image in (globalPersons[person].imagelinks)) {
+                    (globalPersons[person].imagelinks).forEach(imageFile => {
+                        var newIMG_1 = document.createElement("img"); // name
+                            newIMG_1.setAttribute("class","lazy w3-image");
+                            newIMG_1.style = "width:50px;cursor:zoom-in;";
+                            newIMG_1.src="/static/img/loading.png"
+                            newIMG_1.setAttribute("data-src",window.location.origin+'/api/get_train_image?person='+person+'&filename='+imageFile);
+                            // newIMG_1.setAttribute("data-srcset","");
+                            newIMG_1.setAttribute("onclick","document.getElementById('modal_"+person+"_"+imageFile+"').style.display='block'");
+                        newTD2_1.appendChild(newIMG_1);
+                        var newDIV = document.createElement("div");
+                            newDIV.id = "modal_"+person+"_"+imageFile;
+                            newDIV.setAttribute("class","w3-modal");
+                            newDIV.style="background-color:rgba(0,0,0,0.8);";
+                            var newDIV_1 = document.createElement("div");
+                                newDIV_1.setAttribute("class","w3-modal-content w3-animate-zoom");
+                                var newDIV_2 = document.createElement("div");
+                                    newDIV_2.setAttribute("class","w3-display-topright w3-text-white");
+                                    newDIV_2.style = "background-color: rgba(0, 0, 0, 0.2);";
+                                    var newDivMove = document.createElement("div"); 
+                                        newDivMove.setAttribute("class","w3-dropdown-hover");
+                                        // newDivMove.style = "background-color: rgba(0, 0, 0, 0.2);";
+                                        var newSPAN_1 = document.createElement("span"); 
+                                            newSPAN_1.setAttribute("class","w3-button w3-hover-red w3-xlarge");
+                                            newSPAN_1.style = "background-color: rgba(0, 0, 0, 0.2);";
+                                            newSPAN_1.setAttribute("onclick","document.getElementById('modal_move_"+person+"_"+imageFile+"').style.display='block'");
+                                            newSPAN_1.innerHTML = '<i class="fas fa-user-edit"></i>';
+
+                                            var newMoveSelect = document.createElement("div");
+                                                newMoveSelect.setAttribute("class","w3-dropdown-content w3-bar-block w3-border w3-tiny");
+                                                newMoveSelect.setAttribute("style","max-height:50vw;overflow:auto;");
+
+                                                    for (let person in globalPersons) {
+                                                        newPerson = document.createElement("a");
+                                                        newPerson.setAttribute("class",'w3-bar-item w3-button');
+                                                        // newPerson.href = 'http://'+window.location.host+'/api/training?rename=true&image='+element.imageOriginalName+'&name='+person
+                                                        newPerson.innerText = person;
+                                                        newMoveSelect.appendChild(newPerson);
+                                                    }
+                                                
+                                            newDivMove.appendChild(newSPAN_1);
+                                            newDivMove.appendChild(newMoveSelect);
+                                    newDIV_2.appendChild(newDivMove);
+                                    var newSPAN_2 = document.createElement("span"); 
+                                        newSPAN_2.setAttribute("class","w3-button w3-hover-red w3-xlarge");
+                                        newSPAN_2.setAttribute("onclick","document.getElementById('modal_remove_"+person+"_"+imageFile+"').style.display='block'");
+                                        newSPAN_2.innerHTML = '<i class="fas fa-user-minus"></i>';
+                                    newDIV_2.appendChild(newSPAN_2);
+                                    var newSPAN_3 = document.createElement("span"); 
+                                        newSPAN_3.setAttribute("class","w3-button w3-hover-red w3-xlarge");
+                                        newSPAN_3.setAttribute("onclick","document.getElementById('modal_"+person+"_"+imageFile+"').style.display='none';");
+                                        newSPAN_3.innerHTML = '<i class="fas fa-times"></i>';
+                                    newDIV_2.appendChild(newSPAN_3);
+                    
+                                newDIV_1.appendChild(newDIV_2);
+                                var newIMG_2 = document.createElement("img");
+                                    newIMG_2.src=window.location.origin+'/api/get_train_image?person='+person+'&filename='+imageFile;
+                                    newIMG_2.style="width:100%";
+                                    newIMG_2.setAttribute('onclick',"document.getElementById('modal_"+person+"_"+imageFile+"').style.display='none';")
+                                newDIV_1.appendChild(newIMG_2);
+                            newDIV.appendChild(newDIV_1);        
+                        newTD2_1.appendChild(newDIV);
+
+                        var newDIV_Del = document.createElement("div");
+                            newDIV_Del.id = "modal_remove_"+person+"_"+imageFile;
+                            newDIV_Del.setAttribute("class","w3-modal");
+                            var newDIV_Del_Cont = document.createElement("div");
+                                newDIV_Del_Cont.setAttribute("class","w3-modal-content w3-center");
+                                // newDIV_Del_Cont.setAttribute('onclick',"document.getElementById('modal_remove_"+person+"_"+imageFile+"').style.display='none';");
+                                newDIV_Del_Cont.innerHTML =
+                                    `<p class="w3-container w3-dark-grey w3-padding-32">Do you want to remove this image from training data?
+                                        <p class="w3-container">`+
+                                            '<span class="w3-button w3-hover-red w3-xlarge w3-text-green"><i class="fas fa-check"></i></span>'+
+                                            '<span class="w3-button w3-hover-red w3-xlarge w3-text-red" onclick="document.getElementById(\'modal_remove_'+person+'_'+imageFile+'\').style.display=\'none\';">'+
+                                            `<i class="fas fa-times"></i></span>'
+                                        </p>
+                                    </p>
+                                `;
+                            newDIV_Del.appendChild(newDIV_Del_Cont);
+                        newTD2_1.appendChild(newDIV_Del);
+
+
+
+                    // <div id="modal_remove_{{i}}_{{imageCnt}}" class="w3-modal">
+                    //     <div class="w3-modal-content w3-center" onclick="document.getElementById('modal_remove_{{i}}_{{imageCnt}}').style.display='none';">
+                    //         <p class="w3-container w3-dark-grey w3-padding-32">Do you want to remove this image from training data?
+                    //             <p class="w3-container">
+                    //                 <span class="w3-button w3-hover-red w3-xlarge w3-text-green"><i class="fas fa-check"></i></span>
+                    //                 <span class="w3-button w3-hover-red w3-xlarge w3-text-red"><i class="fas fa-times"></i></span>
+                    //             </p>
+                    //         </p>
+                    //     </div>
+                    // </div>
+                    });
+                    newTR2.appendChild(newTD2_1);
+
+
+
+                myTrainingData.appendChild(newTR);
+                myTrainingData.appendChild(newTR2);
+            }
+            
+            // jump to anchor after loading
+            var givenAnchor = location.hash;
+            if(givenAnchor != '') {
+                window.location.href = givenAnchor; 
+                console.log('goto:'+givenAnchor)
+            }
+
+            // lazy image loading
+            var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+            if ("IntersectionObserver" in window) {
+                let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                    entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        let lazyImage = entry.target;
+                        lazyImage.src = lazyImage.dataset.src;
+                        // lazyImage.srcset = lazyImage.dataset.srcset;
+                        lazyImage.classList.remove("lazy");
+                        lazyImageObserver.unobserve(lazyImage);
+                    }
+                    });
+                });
+
+                lazyImages.forEach(function(lazyImage) {
+                    lazyImageObserver.observe(lazyImage);
+                });
+            } else {
+            // Possibly fall back to a more compatible method here
+            }
+        });
+
+</script>
+
+{% endblock %}

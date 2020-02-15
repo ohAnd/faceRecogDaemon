@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}api description{% endblock %}</h1>
+    <p>short cuts and info about the api</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-padding-16 w3-content w3-text-grey" id="settings">
+    <div class="w3-section">
+        <div class="w3-responsive">
+            <table class="w3-table w3-bordered w3-mobile">
+                <tr class="w3-dark-grey"><th>method</th><th>url</th></tr>
+                <tr class="w3-grey"><td colspan="2">face recognition</td></tr>
+                    <tr><td>trigger new face recognization with a fresh image from source<br> return: JSON</td><td><a href='http://{{ values["hostlink"] }}/api/check' target=_blank>/api/check</a></td></tr>
+                <tr><td>get online face recognization, return the result image directly<br> return: image</td><td><a href='http://{{ values["hostlink"] }}/api/check?stream=1' target=_blank>/api/check?stream=1</a></td></tr>
+                <tr class="w3-grey"><td colspan="2">training</td></tr>
+                    <tr><td>get all training src data as summary in JSON </td><td><a href='http://{{ values["hostlink"] }}/api/training?getdata=true' target=_blank>/api/training?getdata=true</a></td></tr>    
+                    <tr><td>retrigger the training of given images</td><td><a href='http://{{ values["hostlink"] }}/api/training?retrain=true' target=_blank>/api/training?retrain=true</a></td></tr>
+                    <tr><td>move image from history to training data with given person name</td><td><a href='http://{{ values["hostlink"] }}/api/training?rename=true&image=mmmmm.jpg&name=Joe' target=_blank>/api/training?rename=true&image=mmmmm.jpg&name=Joe</a></td></tr>
+                    <tr><td>get trained image by person and filename</td><td><a href='http://{{ values["hostlink"] }}/api/get_train_image?person=name&filename=name01.png' target=_blank>/api/get_train_image?person=name&filename=name01.png</a></td></tr>
+                    <tr><td>get trained image by number</td><td><a href='http://{{ values["hostlink"] }}/api/get_train_image?person=name&number=0' target=_blank>/api/get_train_image?person=name&number=0</a></td></tr>
+                    <tr><td></td><td></td></tr>
+                    <tr><td></td><td></td></tr>
+                <tr class="w3-grey"><td colspan="2">recent recognitions</td></tr>
+                    <tr><td>get most recent image</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image' target=_blank>/api/get_recent_image</a></td></tr>
+                    <tr><td>get an overview of recent images in JSON<br>(default limited to 10, if less images available it is shortend)</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image?json' target=_blank>/api/get_recent_image?json</a></td></tr>
+                    <tr><td>get an overview of recent images in JSON with given limit of resopnse<br>e.g. 30 entries (hard limited to 1000)</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image?json&limit=30' target=_blank>/api/get_recent_image?json&limit=30</a></td></tr>
+                    <tr><td>get most recent image - higher number means older image</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image?number=0' target=_blank>/api/get_recent_image?number=0</a></td></tr>
+                    <tr><td>get most recent image with new face recognition fpr filename</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image?filename=name' target=_blank>/api/get_recent_image?filename=name</a></td></tr>
+                    <tr><td>get most recent image without image manipulation (timestamp face frame/ naming)</td><td><a href='http://{{ values["hostlink"] }}/api/get_recent_image?number=0&original=true' target=_blank>/api/get_recent_image?number=0&original=true</a></td></tr>
+                    <tr><td></td><td></td></tr>
+                <tr class="w3-grey"><td colspan="2">images</td></tr>
+                    <tr><td>get image file with name</td><td><a href='http://{{ values["hostlink"] }}/api/get_image?file=name' target=_blank>/api/get_image?file=name</a></td></tr>
+                    <tr><td></td><td></td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

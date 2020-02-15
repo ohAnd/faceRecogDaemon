@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+<style type="text/css">
+    .loading { background-image: url(loading.gif); }
+    .loaderror { background-image: url(loaderror.gif); }
+</style>
+
+{% block header %}
+  <h1>{% block title %}live view{% endblock %}</h1>
+    <p>shows the live face recognization for the configured source picture/ stream</p>
+{% endblock %}
+
+{% block content %}
+<div class="w3-padding-16 w3-content w3-text-grey" id="liveview">
+    <div class="w3-section">
+        <div class="w3-center">
+            <img id="myImage" src="" class="w3-image w3-card-4 w3-round w3-hide"/>
+            <i id="onloadSpinner" class="w3-xxlarge fas fa-circle-notch fa-spin"></i>
+            <p id="imageText"></p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" language="javascript">
+    var imgSrcURL = 'http://{{ values["hostlink"] }}/api/check?stream=1'+'&rand=' + Math.random();
+    var myImageElement = document.getElementById('myImage');
+    // reload image every 1 second, after successfully loaded the first time
+    myImageElement.src = imgSrcURL;
+
+    // show spinner until image loaded
+    myImageElement.onload=function(){
+        //console.log("image loading done");
+        document.getElementById('onloadSpinner').classList.add("w3-hide");
+        document.getElementById('imageText').classList.add("w3-hide");
+        document.getElementById('myImage').classList.remove("w3-hide");
+        var loadCnt = setTimeout(function() {  
+            //console.log('next load')
+            myImageElement.src = imgSrcURL+'&rand=' + Math.random();
+        }, 250);
+    };
+    myImageElement.onerror=function(){
+        var retryCnt = 5; //seconds
+        console.log('error loading image - '+retryCnt)
+        document.getElementById('onloadSpinner').classList.remove("w3-hide");
+        document.getElementById('myImage').classList.add("w3-hide");
+        document.getElementById('imageText').classList.remove("w3-hide");
+        document.getElementById('imageText').innerHTML = '... error while loading image<br>retry in a '+retryCnt+' seconds ...';
+        
+        var retryCounter = setInterval(function(){
+            retryCnt = retryCnt - 1;
+            if(retryCnt <= 1) {
+                //console.log('new try - to get image - '+retryCnt)
+                myImageElement.src = imgSrcURL+'&rand=' + Math.random();
+                clearInterval(retryCounter);
+            }
+            document.getElementById('imageText').innerHTML = '... error while loading image<br>retry in a '+retryCnt+' seconds ...';
+        }, 1000);
+    }
+</script>
+
+{% endblock %}
