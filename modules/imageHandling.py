@@ -13,7 +13,11 @@ from face_recognition.face_recognition_cli import image_files_in_folder
 def getImageFromUrl(urlToImageSrc):
     import requests
     from io import BytesIO
-    response = requests.get(urlToImageSrc)
+    try:
+      response = requests.get(urlToImageSrc)
+    except requests.ConnectionError:
+      return 'connection_timeout'
+    
     if response.status_code == 503:
         return 'error: doorbird - not available (503)'
     else:
