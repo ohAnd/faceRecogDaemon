@@ -110,6 +110,10 @@ def train(train_dir, model_save_path=None, n_neighbors=None, knn_algo='ball_tree
 
     return n_neighbors
 
+def getFacesInImage(lastImage):
+    image = face_recognition.load_image_file(lastImage)
+    noOfFaces = len(face_recognition.face_locations(image))
+    return noOfFaces
 
 def predict(X_img_path, knn_clf=None, model_path=None, distance_threshold=0.6):
     """
