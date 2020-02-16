@@ -10,6 +10,24 @@
     - [download & start](#download--start)
     - [configuration](#configuration)
   - [API](#api)
+    - [face recognition](#face-recognition)
+      - [/api/check](#apicheck)
+      - [/api/check?stream=1](#apicheckstream1)
+    - [training](#training)
+      - [/api/training?getdata=true](#apitraininggetdatatrue)
+      - [/api/training?retrain=true](#apitrainingretraintrue)
+      - [/api/training?rename=true&image=mmmmm.jpg&name=Joe](#apitrainingrenametrueimagemmmmmjpgnamejoe)
+      - [/api/get_train_image?person=name&filename=name01.png](#apigettrainimagepersonnamefilenamename01png)
+      - [/api/get_train_image?person=name&number=0](#apigettrainimagepersonnamenumber0)
+    - [recent recognitions](#recent-recognitions)
+      - [/api/get_recent_image](#apigetrecentimage)
+      - [/api/get_recent_image?json](#apigetrecentimagejson)
+      - [/api/get_recent_image?json&limit=30](#apigetrecentimagejsonlimit30)
+      - [/api/get_recent_image?number=0](#apigetrecentimagenumber0)
+      - [/api/get_recent_image?filename=name](#apigetrecentimagefilenamename)
+      - [/api/get_recent_image?number=0&original=true](#apigetrecentimagenumber0originaltrue)
+    - [images](#images)
+      - [/api/get_image?file=name](#apigetimagefilename)
   - [Links](#links)
 
 ## description
@@ -69,9 +87,28 @@ Load needed modules with pip
 
         pip install "module"
 
-start the serve (service installation coming soon)
+for quick start:
+- create a path for known faces outside the app directory e.g. /path/to/knownFaces and put the path to config see below
+  - inside this path create a dirextory for each person you want to recognize
+  - in this subfolders you have to put some images for training
+  - images must have only **one** face showing, otherwise it it will be ignored by training
+    ```
+      Structure:
+            </path/to/knownFaces>/
+            |-- <person1>/
+            |   |-- <somename1>.jpeg
+            |   |-- <somename2>.png
+            |   |-- ...
+            |-- <person2>/
+            |   |-- <somename1>.jpeg
+            |   |-- <somename2>.jpeg
+            |-- ...
+    ```
+- create a archive path outside the app directory e.g. /path/to/imageArchive and put the path to config see below
 
-        bash:// ./faecRecogDaemon.py
+start the server (service installation coming soon)
+
+        bash://<paht/to/your/download>> ./faecRecogDaemon.py
 
 ### configuration
 create a config file in application root directory
@@ -94,30 +131,112 @@ with following content
         pathToKnownFaces = <your_path>
         pathToImageArchive = <your_path>
 
+___
+___
 ## API
+___
+### face recognition 
 
-all features are described inside the client app
-|method|url|
-|---|---|
-|**face recognition**| |
-|trigger new face recognization with a fresh image from source<br> return: JSON|/api/check|
-|get online face recognization, return the result image directly<br> return: image|/api/check?stream=1|
-|**training**||
-|get all training src data as summary in JSON|/api/training?getdata=true|
-|retrigger the training of given images|/api/training?retrain=true|
-|move image from history to training data with given person name|/api/training?rename=true&image=mmmmm.jpg&name=Joe|
-|get trained image by person and filename|/api/get_train_image?person=name&filename=name01.png|
-|get trained image by number|/api/get_train_image?person=name&number=0|
-|**recent recognitions**||
-|get most recent image|/api/get_recent_image|
-|get an overview of recent images in JSON<br>(default limited to 10, if less images available it is shortend)|/api/get_recent_image?json|
-|get an overview of recent images in JSON with given limit of resopnse<br>e.g. 30 entries (hard limited to 1000)|/api/get_recent_image?json&limit=30|
-|get most recent image - higher number means older image|/api/get_recent_image?number=0|
-|get most recent image with new face recognition fpr filename|/api/get_recent_image?filename=name|
-|get most recent image without image manipulation (timestamp face frame/ naming)|/api/get_recent_image?number=0&original=true|
-|**images**||
-|get image file with name|/api/get_image?file=name|
-                    
+#### /api/check
+trigger new face recognization with a fresh image from source<br> return: JSON
+
+<details>
+<summary>response</summary>
+with response code 200, following json will be returned
+
+```json
+{
+  "checkDetails": {
+    "NumberOfFaces": 0, 
+    "imageToCheck": "http://<source image>", 
+    "linkToArchivedImage": ""
+  }, 
+  "checkResults": {
+    "linkToResultImage": "http://<host of face recog daemon>/api/get_image?file=/noFaces/<archived image name>.jpg", 
+    "personsFound": {}
+  }, 
+  "status": "no faces found"
+}
+```
+
+</details>
+
+#### /api/check?stream=1
+get online face recognization, return the result image directly<br> return: image
+___
+### training
+
+#### /api/training?getdata=true
+get all training src data as summary in JSON
+
+<details>
+<summary>response</summary>
+with response code 200, following json will be returned
+
+```json
+{
+  "persons": {
+    "<nameOfPerson1>": {
+      "count": 26, 
+      "imagelinks": [
+        "<baseImage>.png", 
+        ...
+        "<baseImage_n_>.jpg", 
+        "<baseImage_m_>.jpg"
+      ]
+    }, 
+    "<nameOfPerson2>": {
+      "count": 10, 
+      "imagelinks": [
+        "<baseImage>.png", 
+        ...
+        "<baseImage_n_>.jpg", 
+        "<baseImage_m_>.jpg"
+      ]
+    }
+  }
+}
+
+```
+
+</details>
+
+#### /api/training?retrain=true
+retrigger the training of given images
+
+#### /api/training?rename=true&image=mmmmm.jpg&name=Joe
+move image from history to training data with given person name
+
+#### /api/get_train_image?person=name&filename=name01.png
+get trained image by person and filename
+
+#### /api/get_train_image?person=name&number=0
+get trained image by number
+___
+### recent recognitions
+#### /api/get_recent_image
+get most recent image
+
+#### /api/get_recent_image?json
+get an overview of recent images in JSON<br>(default limited to 10, if less images available it is shortend)
+
+#### /api/get_recent_image?json&limit=30
+get an overview of recent images in JSON with given limit of resopnse<br>e.g. 30 entries (hard limited to 1000)
+
+#### /api/get_recent_image?number=0
+get most recent image - higher number means older image
+
+#### /api/get_recent_image?filename=name
+get most recent image with new face recognition fpr filename
+
+#### /api/get_recent_image?number=0&original=true
+get most recent image without image manipulation (timestamp face frame/ naming)
+___
+### images
+#### /api/get_image?file=name
+get image file with name
+
+___                
 
 
 ## Links
