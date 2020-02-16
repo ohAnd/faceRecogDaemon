@@ -15,7 +15,6 @@ import os
 import sys
 sys.path.append("modules/")
 import imageHandling
-import faceRecog
 import faceRecogKNN
 import ConfigParser
 
@@ -308,7 +307,7 @@ if __name__ == "__main__":
     # # httpLogger.addFilter(logging.Filter("HTTP"))
     # httpLogger.propagate = False
     
-    app.run(host='0.0.0.0', port=portForWebserver, debug=True)
-    # from gevent.pywsgi import WSGIServer
-    # http_server = WSGIServer(('', portForWebserver), app, log=logger)
-    # http_server.serve_forever()
+    # app.run(host='0.0.0.0', port=portForWebserver, debug=True)
+    from gevent.pywsgi import WSGIServer
+    http_server = WSGIServer(('', portForWebserver), app, log=logger)
+    http_server.serve_forever()
