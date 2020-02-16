@@ -36,23 +36,23 @@ def getImageInTrainDirectory(trainDir,nameDir,num):
   files_path = trainDir+'/' + nameDir + '/*' # * means all if need specific format then *.csv
   files = sorted(glob.iglob(files_path), key=os.path.getctime, reverse=True)
   if len(files) == 0: # or len(files) <= num:
-    print "cnt: "+str(len(files))+" num: "+ str(num)
+    print ("cnt: "+str(len(files))+" num: "+ str(num))
     return 'notFound'
   if int(num) >= len(files):
-    print "2. cnt: "+str(len(files))+" num: "+ str(num)
+    print ("2. cnt: "+str(len(files))+" num: "+ str(num))
     return 'notFound'
   return files[int(num)]
 
-def getImageInTrainDirectoryByFilename(trainDir,nameDir,filename):  
-  files_path = trainDir+'/' + nameDir + '/*' # * means all if need specific format then *.csv
-  files = sorted(glob.iglob(files_path), key=os.path.getctime, reverse=True)
-  if len(files) == 0: # or len(files) <= num:
-    print "cnt: "+str(len(files))+" num: "+ str(num)
-    return 'notFound'
-  if int(num) >= len(files):
-    print "2. cnt: "+str(len(files))+" num: "+ str(num)
-    return 'notFound'
-  return files[int(num)]
+# def getImageInTrainDirectoryByFilename(trainDir,nameDir,filename):  
+#   files_path = trainDir+'/' + nameDir + '/*' # * means all if need specific format then *.csv
+#   files = sorted(glob.iglob(files_path), key=os.path.getctime, reverse=True)
+#   if len(files) == 0: # or len(files) <= num:
+#     print "cnt: "+str(len(files))+" num: "
+#     return 'notFound'
+#   if int(num) >= len(files):
+#     print "2. cnt: "+str(len(files))+" num: "
+#     return 'notFound'
+#   return files[int(num)]
 
 def getPersonFromTrainFolder(train_dir):
   persons = {}
@@ -76,13 +76,13 @@ def getPersonFromTrainFolder(train_dir):
   return persons
 
 def getFileProps(file):
-  print file
+  # print file
   img = Image.open(file)
-  print "info: "
-  print img.info 
+  # print "info: "
+  # print img.info 
   exif_dict = piexif.load(img.info["exif"])
-  print "dict: "
-  print exif_dict
+  # print "dict: "
+  # print exif_dict
   
   #exif_dict = {}
   
@@ -94,7 +94,6 @@ def getFileProps(file):
 
   img.save(file, "jpeg", exif=exif_bytes)
 
-  
   return 0
 
 def moveFileToFolder(src,target):
@@ -103,15 +102,15 @@ def moveFileToFolder(src,target):
 
 def copyFileToFolder(src,target):    
   if os.path.isfile(target):
-    print "file: "+target+" already exists"
+    print ("file: "+target+" already exists")
     return 1
   else:
-    print "copy file: "+src+" to: "+target
+    print ("copy file: "+src+" to: "+target)
     copyfile(src,target)
   return 0
 
 def deleteFileWithPath(pathToFile):
-  print "delete file - "+pathToFile
+  print ("delete file - "+pathToFile)
   os.remove(pathToFile)
   return 0
 

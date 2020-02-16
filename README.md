@@ -1,4 +1,7 @@
 # faceRecogDaemon
+
+![Python application](https://github.com/ohAnd/faceRecogDaemon/workflows/Python%20application/badge.svg)
+
 - [faceRecogDaemon](#facerecogdaemon)
   - [description](#description)
     - [Problem](#problem)
