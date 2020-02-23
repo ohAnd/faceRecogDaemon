@@ -33,7 +33,7 @@ def getImageFromUrl(urlToImageSrc):
         return imageContent
 
 def getImageFromRTSP(capture):   
-    # print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 1 start gettinf rtsp frame")
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     1 start gettinf rtsp frame")
     startProcessTime = datetime.now()
     
     frame = capture.getFrame()
@@ -48,7 +48,7 @@ def getImageFromRTSP(capture):
     
     processTime = (datetime.now() - startProcessTime)
     processTime = str(processTime)
-    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 2 done  rtsp frame - needed: "+processTime)
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     2 done  rtsp frame - needed: "+processTime)
     return stream
 
 def getRecentFileOfDirectory(pathToImageArchive,num):  
@@ -212,7 +212,7 @@ class RTSPstream:
 
   def getFrame(self):
     if self.stream is None or not self.stream.isOpened():
-       print('Warning: unable to open video source: ', path)
+       print('Warning: unable to open video source')
     # return last frame if available
     if (self.last_ready is not None) and (self.last_frame is not None):
         return self.last_frame.copy()

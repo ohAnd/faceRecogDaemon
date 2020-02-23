@@ -39,7 +39,7 @@ try:
         pathToKnownFaces = cfg.get('directories','pathToKnownFaces')
 except configparser.NoSectionError:
     app.logger.info("no config.ini - use defaults")
-except ConfigParser.NoOptionError:
+except configparser.NoOptionError:
     app.logger.info("config.ini - missing option")
 
 # initialize rtsp instance for later threading, if rtsp url is given
@@ -90,12 +90,20 @@ def check():
     else:
         checkResponse['checkDetails']['imageToCheck'] = urlToImageSrc
     # get face Recog
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     1 start getFaces on frame")
+    startProcessTimeFaces = datetime.now()
     noOfFaces = faceRecogKNN.getFacesInImage(lastImage)
+    processTime = (datetime.now() - startProcessTimeFaces)
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     2 done  getFaces on frame: "+str(processTime))
     checkResponse['checkDetails']['NumberOfFaces'] = noOfFaces
     # get predictions for found faces
     personsFound = {} 
-    imageBlob = ''   
+    imageBlob = ''
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     1 start prediction on frame")
+    startProcessTimePred = datetime.now()
     predictions = faceRecogKNN.predict(lastImage, model_path=pathToKnownFaces+"/trained_knn_model.clf",distance_threshold=knnDistance)
+    processTime = (datetime.now() - startProcessTimePred)
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     2 done  prediction on frame: "+str(processTime))
     if noOfFaces > 0:
         for name, (top, right, bottom, left) in predictions:
             if name in personsFound:
@@ -113,13 +121,16 @@ def check():
         imageLocalLink = faceRecogKNN.show_prediction_labels_on_image(lastImage,pathToImageArchive,predictions,0,noOfFaces)
         checkResponse['checkResults']['linkToResultImage'] = 'http://'+request.host +'/api/get_image?file='+imageLocalLink
     else:
+        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     1 start recog on frame")
+        startProcessTimeRecog = datetime.now()
         imageBlob = faceRecogKNN.show_prediction_labels_on_image(lastImage,pathToImageArchive,predictions,0,noOfFaces,retLinkOrBlob='blob')
+        processTime = (datetime.now() - startProcessTimeRecog)
+        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     2 done  recog on frame: "+str(processTime))
         
     if stream == 1:
         # print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 4 send image to client")
         processTime = (datetime.now() - startProcessTime)
-        processTime = str(processTime)
-        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - API-Check 2 done - send image to client: "+processTime)
+        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - API-Check 2 done - send image to client: "+str(processTime))
         return send_file(imageBlob, mimetype='image/gif')
     else:
         # Return the result as json
