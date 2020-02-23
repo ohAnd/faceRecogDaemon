@@ -47,6 +47,7 @@ face recognition daamon ;-)
 ### Features
 
 #### user side
+- bind with image streams or NEW with rtsp stream, see config
 - overview of recent historic recognized faces
   - change seen faces to other persons for next training
   - change seen faces to new persons for next training (coming soon)
@@ -79,16 +80,26 @@ screenshots of client:
 
 
 ## installation
-The application is written in Python. So you need an already installed environment as described here: https://www.python.org/about/gettingstarted/
+The application is written in Python. So you need an already installed environment as described here: https://www.python.org/about/gettingstarted/ - needed version >= 3.6
+
+If you running an ubuntu maybe you need for compiling dlib (only one time)
+
+        sudo apt install python3.7-dev
 
 
 ### download & start
 
 Donwload 'face recognition daemon' application the last release at https://github.com/ohAnd/faceRecogDaemon/releases
 
-Load needed modules with pip
+Update pip to the latest
 
-        pip install "module"
+        python -m pip3 install --upgrade pip
+
+during the installation [dlib](dlib.net) will be installed (need's some time for compiling ;-) )
+
+intall needed modules
+
+        pip3 install -r requirements.txt
 
 for quick start:
 - create a path for known faces outside the app directory e.g. /path/to/knownFaces and put the path to config see below
@@ -125,7 +136,8 @@ with following content
         Port: 5001
 
         [imageSource]
-        urlToImageSrc = <your_path_to_image_src>
+        urlToImageSrc = <your_path_to_image_src> # e.g. http://<urlTocam>:port/image.cgi
+        // urlToImageSrc = <your_path_to_image_src> # e.g. rtsp://user:pass@<ip-address>:<port>/media.amp
 
         [faceRecognition]
         knnDistance = 0.50

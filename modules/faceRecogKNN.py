@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 """
 This is an example of using the k-nearest-neighbors (KNN) algorithm for face recognition.
 
@@ -188,9 +188,6 @@ def show_prediction_labels_on_image(file_stream, pathToImageArchive, predictions
         # Draw a box around the face using the Pillow module
         draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))
 
-        # There's a bug in Pillow where it blows up with non-UTF-8 text
-        # when using the default bitmap font
-        name = name.encode("UTF-8")
         nameInFile = nameInFile + '_' + name
         # Draw a label with a name below the face
         text_width, text_height = draw.textsize(name, font=font)

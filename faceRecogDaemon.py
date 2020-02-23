@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 portForWebserver = 5001
 urlToImageSrc = 'https://c.pxhere.com/images/57/9c/893d3c322850a321e164a0c8cc75-1418580.jpg!d'
@@ -16,14 +16,14 @@ import sys
 sys.path.append("modules/")
 import imageHandling
 import faceRecogKNN
-import ConfigParser
+import configparser
 
 from flask import Flask, jsonify, request, send_file, render_template, g, \
      abort, Response, redirect, url_for
 from datetime import datetime
 app = Flask(__name__)
 
-cfg = ConfigParser.ConfigParser()
+cfg = configparser.ConfigParser()
 cfg.read("config.ini")
 try:
     if cfg.get('webserver','Port') != '':
@@ -31,23 +31,27 @@ try:
     if cfg.get('imageSource','urlToImageSrc') != '':
         urlToImageSrc = cfg.get('imageSource','urlToImageSrc')
     if cfg.get('faceRecognition','knnDistance') != '':
-        knnDistance = cfg.get('faceRecognition','knnDistance')
+        knnDistance = cfg.getfloat('faceRecognition','knnDistance')
         app.logger.info("config: "+str(knnDistance))
     if cfg.get('directories','pathToImageArchive') != '':
         pathToImageArchive = cfg.get('directories','pathToImageArchive')
     if cfg.get('directories','pathToKnownFaces') != '':
         pathToKnownFaces = cfg.get('directories','pathToKnownFaces')
-except ConfigParser.NoSectionError:
+except configparser.NoSectionError:
     app.logger.info("no config.ini - use defaults")
 except ConfigParser.NoOptionError:
     app.logger.info("config.ini - missing option")
 
+# initialize rtsp instance for later threading, if rtsp url is given
+if(urlToImageSrc.startswith("rtsp")):
+    newRTSP = imageHandling.RTSPstream(urlToImageSrc)
+
 # # # # Webserver # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-
 
 @app.route('/api/check', methods=['GET'])
 def check():
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - API-check 1 start gettinf rtsp frame")
+    startProcessTime = datetime.now()
     # is online streaming requested
     if request.args.get('stream') == '1':
         stream = 1
@@ -66,7 +70,19 @@ def check():
             }
     }
     # get last image
-    lastImage = imageHandling.getImageFromUrl(urlToImageSrc)
+    if(urlToImageSrc.startswith("rtsp")):
+        if newRTSP.isNotRunning():
+            newRTSP.start() 
+        lastImage = imageHandling.getImageFromRTSP(newRTSP)
+        newRTSP.stop()
+        if lastImage is None:
+            # reinit maybe connection was broken
+            # newRTSP.__init__(urlToImageSrc)
+            # print ("lastImage is none - try to reinit")
+            pathFilename = 'static/img/loading.png'
+            return send_file(pathFilename, mimetype='image/gif')
+    else:
+        lastImage = imageHandling.getImageFromUrl(urlToImageSrc)
     
     if "error" in lastImage:
         checkResponse['status'] = lastImage
@@ -100,6 +116,10 @@ def check():
         imageBlob = faceRecogKNN.show_prediction_labels_on_image(lastImage,pathToImageArchive,predictions,0,noOfFaces,retLinkOrBlob='blob')
         
     if stream == 1:
+        # print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 4 send image to client")
+        processTime = (datetime.now() - startProcessTime)
+        processTime = str(processTime)
+        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - API-Check 2 done - send image to client: "+processTime)
         return send_file(imageBlob, mimetype='image/gif')
     else:
         # Return the result as json

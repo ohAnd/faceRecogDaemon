@@ -1,18 +1,26 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from datetime import datetime
 from PIL import Image, ImageDraw, ExifTags
 import piexif
 import glob
 import os
+import sys
+import io
+from io import BytesIO
 from shutil import copyfile
 import platform
 import collections
 from face_recognition.face_recognition_cli import image_files_in_folder
+import threading 
+from threading import Thread
+import requests
+
+import cv2
 
 def getImageFromUrl(urlToImageSrc):
-    import requests
-    from io import BytesIO
+    
+    
     try:
       response = requests.get(urlToImageSrc)
     except requests.ConnectionError:
@@ -23,6 +31,25 @@ def getImageFromUrl(urlToImageSrc):
     else:
         imageContent = BytesIO(response.content)
         return imageContent
+
+def getImageFromRTSP(capture):   
+    # print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 1 start gettinf rtsp frame")
+    startProcessTime = datetime.now()
+    
+    frame = capture.getFrame()
+    if frame is None:
+      return None
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) 
+    
+    image = Image.fromarray(frame)    
+    stream = io.BytesIO()       # creating a stream object to not write to the disk    
+    image.save(stream, format="TIFF", compression=None) # tiff instead PNG for performace
+    # stream.seek(0)
+    
+    processTime = (datetime.now() - startProcessTime)
+    processTime = str(processTime)
+    print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - 2 done  rtsp frame - needed: "+processTime)
+    return stream
 
 def getRecentFileOfDirectory(pathToImageArchive,num):  
   files_path = pathToImageArchive+'/*.png' # * means all if need specific format then *.csv
@@ -154,3 +181,48 @@ def getTaggedImageOfOriginal(pathToOriginalFile):
           taggedImage = entry
                 
     return taggedImage
+      
+class RTSPstream:
+  def __init__(self, path):
+    # print ("try to init with: "+path)
+    # initialize the file video stream along with the boolean
+    # used to indicate if the thread should be stopped or not
+    self.stream = cv2.VideoCapture(path)
+    if self.stream is None or not self.stream.isOpened():
+       print('Warning: unable to open video source: ', path)
+    self.stopped = True
+    # init last data for warm start
+    self.last_ready = None
+  def start(self):
+    # start a thread to read frames from the file video stream
+    self.stopped = False
+    t = Thread(target=self.update, args=())
+    t.daemon = True
+    t.start()
+    return self
+  def update(self):
+    # keep looping infinitely
+    while True:
+      # if the thread indicator variable is set, stop the
+      # thread
+      if self.stopped:
+        return
+      # otherwise, get the last frame
+      self.last_ready, self.last_frame = self.stream.read()
+
+  def getFrame(self):
+    if self.stream is None or not self.stream.isOpened():
+       print('Warning: unable to open video source: ', path)
+    # return last frame if available
+    if (self.last_ready is not None) and (self.last_frame is not None):
+        return self.last_frame.copy()
+    else:
+        print ("no frame seen")
+        return None
+  def stop(self):
+    # indicate that the thread should be stopped
+    self.stopped = True
+  def isNotRunning(self):
+    # indicate that the thread should be stopped
+    # print ("rtsp is running?")
+    return self.stopped
