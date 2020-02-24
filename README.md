@@ -1,12 +1,12 @@
 # faceRecogDaemon
 
-![Python application](https://github.com/ohAnd/faceRecogDaemon/workflows/Python%20application/badge.svg)
-![GitHub All Releases](https://img.shields.io/github/downloads/ohand/faceRecogDaemon/total)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ohand/faceRecogDaemon?include_prereleases)
-![GitHub issues](https://img.shields.io/github/issues-raw/ohand/faceRecogDaemon)
-![GitHub watchers](https://img.shields.io/github/watchers/ohand/faceRecogDaemon)
-![GitHub contributors](https://img.shields.io/github/contributors-anon/ohand/faceRecogDaemon)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ohand/faceRecogDaemon)
+[![Python application](https://github.com/ohAnd/faceRecogDaemon/workflows/Python%20application/badge.svg)](https://github.com/ohAnd/faceRecogDaemon/actions?query=workflow%3A%22Python+application%22)
+[![GitHub All Releases](https://img.shields.io/github/downloads/ohand/faceRecogDaemon/total)](https://github.com/ohAnd/faceRecogDaemon/releases)
+[![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ohand/faceRecogDaemon?include_prereleases)](https://github.com/ohAnd/faceRecogDaemon/releases)
+[![GitHub issues](https://img.shields.io/github/issues-raw/ohand/faceRecogDaemon)](https://github.com/ohAnd/faceRecogDaemon/issues)
+[![GitHub watchers](https://img.shields.io/github/watchers/ohand/faceRecogDaemon)](https://github.com/ohAnd/faceRecogDaemon/watchers)
+[![GitHub contributors](https://img.shields.io/github/contributors-anon/ohand/faceRecogDaemon)](https://github.com/ohAnd/faceRecogDaemon/graphs/contributors)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ohand/faceRecogDaemon)](https://github.com/ohAnd/faceRecogDaemon/commits/master)
 
 - [faceRecogDaemon](#facerecogdaemon)
   - [description](#description)
