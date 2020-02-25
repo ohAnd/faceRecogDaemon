@@ -8,7 +8,7 @@ knnDistance = 0.6
 pathToKnownFaces = 'train_dir'
 pathToImageArchive = 'webserver2'
 
-version = '1.0.0'
+version = '1.0.2'
 
 ################################################################################################################################
 import os
