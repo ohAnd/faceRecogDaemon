@@ -13,10 +13,24 @@
 {% block content %}
 <div class="w3-padding-16 w3-content w3-text-grey" id="liveview">
     <div class="w3-section">
-        <div class="w3-center">
-            <img id="myImage" src="" class="w3-image w3-card-4 w3-round w3-hide"/>
+        <div class="w3-display-container w3-center">
+            <div class="w3-display-bottomright w3-text-white" style="background-color: rgba(0, 0, 0, 0.3);">
+                <span id="butFullScreen" class="w3-xlarge w3-hide" style="padding:10px!important" onclick="document.getElementById('modal_Fullscreen').style.display='block'">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </span>
+            </div>
+            <img id="myImage" src="" 
+                 style="cursor: zoom-in;"
+                 class="w3-image w3-card-4 w3-round w3-hide"
+                 onclick="document.getElementById('modal_Fullscreen').style.display='block';"/>
             <i id="onloadSpinner" class="w3-xxlarge fas fa-circle-notch fa-spin"></i>
             <p id="imageText"></p>
+            <div id="modal_Fullscreen" class="w3-modal" style="background-color: rgba(0, 0, 0, 0.9); display: none;">
+                <img id="myImageFull" class="w3-modal-content w3-round"
+                     style="position: fixed;top: 0;bottom: 0;left: 0;right: 0; width:auto; max-width: 100%;max-height: 100%;margin: auto;overflow: auto;" 
+                     src="" 
+                     onclick="document.getElementById('modal_Fullscreen').style.display='none';"/>
+            </div>
         </div>
     </div>
 </div>
@@ -24,6 +38,7 @@
 <script type="text/javascript" language="javascript">
     var imgSrcURL = 'http://{{ values["hostlink"] }}/api/check?stream=1'+'&rand=' + Math.random();
     var myImageElement = document.getElementById('myImage');
+    var myImageElementFull = document.getElementById('myImageFull');
     // reload image every 1 second, after successfully loaded the first time
     myImageElement.src = imgSrcURL;
 
@@ -33,10 +48,13 @@
         document.getElementById('onloadSpinner').classList.add("w3-hide");
         document.getElementById('imageText').classList.add("w3-hide");
         document.getElementById('myImage').classList.remove("w3-hide");
+        document.getElementById('butFullScreen').classList.remove("w3-hide");
         var loadCnt = setTimeout(function() {  
             //console.log('next load')
-            myImageElement.src = imgSrcURL+'&rand=' + Math.random();
-        }, 250);
+            var timestamp = '&rand=' + Math.random();
+            myImageElement.src      = imgSrcURL+timestamp;
+            myImageElementFull.src  = imgSrcURL+timestamp;
+        }, 500);
     };
     myImageElement.onerror=function(){
         var retryCnt = 5; //seconds
@@ -50,7 +68,9 @@
             retryCnt = retryCnt - 1;
             if(retryCnt <= 1) {
                 //console.log('new try - to get image - '+retryCnt)
-                myImageElement.src = imgSrcURL+'&rand=' + Math.random();
+                var timestamp = '&rand=' + Math.random();
+                myImageElement.src      = imgSrcURL+timestamp;
+                myImageElementFull.src  = imgSrcURL+timestamp;
                 clearInterval(retryCounter);
             }
             document.getElementById('imageText').innerHTML = '... error while loading image<br>retry in a '+retryCnt+' seconds ...';
