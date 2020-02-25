@@ -112,7 +112,8 @@ def train(train_dir, model_save_path=None, n_neighbors=None, knn_algo='ball_tree
 
 def getFacesInImage(lastImage):
     image = face_recognition.load_image_file(lastImage)
-    noOfFaces = len(face_recognition.face_locations(image))
+    noOfFaces = len(face_recognition.face_locations(image, number_of_times_to_upsample=1, model="hog")) # default 
+    # noOfFaces = len(face_recognition.face_locations(image, model="cnn")) # if nvidea GPU with CUDA support
     return noOfFaces
 
 def predict(X_img_path, knn_clf=None, model_path=None, distance_threshold=0.6):
