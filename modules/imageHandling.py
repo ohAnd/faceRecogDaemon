@@ -184,16 +184,18 @@ def getTaggedImageOfOriginal(pathToOriginalFile):
       
 class RTSPstream:
   def __init__(self, path):
-    # print ("try to init with: "+path)
-    # initialize the file video stream along with the boolean
-    # used to indicate if the thread should be stopped or not
-    self.stream = cv2.VideoCapture(path)
-    if self.stream is None or not self.stream.isOpened():
-       print('Warning: unable to open video source: ', path)
+    # print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - try to init with: "+path)
+    self.path = path
     self.stopped = True
     # init last data for warm start
     self.last_ready = None
+    
   def start(self):
+    self.stream = cv2.VideoCapture(self.path)
+    # if self.stream.isOpened():
+    #   print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - video opened: " + self.path)
+    # else:
+    #   print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - video NOT opened: " + self.path)
     # start a thread to read frames from the file video stream
     self.stopped = False
     t = Thread(target=self.update, args=())
@@ -206,6 +208,8 @@ class RTSPstream:
       # if the thread indicator variable is set, stop the
       # thread
       if self.stopped:
+        print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" - release video stream")
+        self.stream.release()
         return
       # otherwise, get the last frame
       self.last_ready, self.last_frame = self.stream.read()
@@ -224,5 +228,51 @@ class RTSPstream:
     self.stopped = True
   def isNotRunning(self):
     # indicate that the thread should be stopped
-    # print ("rtsp is running?")
     return self.stopped
+  
+  
+import threading
+from threading import Thread, Event
+  
+def startTimer(callback):
+  # timer = threading.Timer(10.0, callback)
+  timer = Timer(60.0, callback)
+  # timer.start()  # after 60 seconds, 'callback' will be called
+  return timer
+
+def startTimerArgs(callback,args):
+  timer = threading.Timer(10.0, callback,[args])
+  timer.start()  # after 60 seconds, 'callback' will be called
+
+def Timer(*args, **kwargs):
+  print ("new Timer instance")
+  return _Timer(*args, **kwargs)
+
+class _Timer(Thread):
+    """Call a function after a specified number of seconds:
+
+    t = Timer(30.0, f, args=[], kwargs={})
+    t.start()
+    t.cancel() # stop the timer's action if it's still waiting
+    """
+
+    def __init__(self, interval, function, args=[], kwargs={}):
+        Thread.__init__(self)
+        self.interval = interval
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.finished = Event()
+        print ("init timer class")
+
+    def cancel(self):
+        """Stop the timer if it hasn't finished yet"""
+        print ("cancel timer")
+        self.finished.set()
+
+    def run(self):
+        print ("run timer")
+        self.finished.wait(self.interval)
+        if not self.finished.is_set():
+            self.function(*self.args, **self.kwargs)
+        self.finished.set()
