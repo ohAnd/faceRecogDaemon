@@ -168,6 +168,7 @@ def show_prediction_labels_on_image(file_stream, pathToImageArchive, predictions
     im = Image.open(file_stream)
     imOrig = Image.open(file_stream)
     draw = ImageDraw.Draw(im)
+    imWidth, imHeight = im.size
 
     nameInFile = ''
     
@@ -186,18 +187,21 @@ def show_prediction_labels_on_image(file_stream, pathToImageArchive, predictions
     #font = ImageFont.truetype("arial.ttf", fontsize)
 
     for name, (top, right, bottom, left) in predictions:
-        # Draw a box around the face using the Pillow module
-        draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))
-
+        
         nameInFile = nameInFile + '_' + name
-        # Draw a label with a name below the face
-        text_width, text_height = draw.textsize(name, font=font)
-        box_width = (right-left)
-        if(box_width < (text_width+5)):
-            left = (left - ((text_width - box_width)/2))-2
-            right = (right + ((text_width - box_width)/2))+2
-        draw.rectangle(((left, bottom), (right, bottom + text_height+5)), fill=(0, 0, 255), outline=(0, 0, 255))
-        draw.text((left + 3, bottom), name, fill=(255, 255, 255, 255),font=font)
+        
+        draw = drawRectangleAndName(draw,name,left,top,right,bottom,font,imHeight, imWidth)
+        
+        # # Draw a box around the face using the Pillow module
+        # draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255))       
+        # # Draw a label with a name below the face
+        # text_width, text_height = draw.textsize(name, font=font)
+        # box_width = (right-left)
+        # if(box_width < (text_width+5)):
+        #     left = (left - ((text_width - box_width)/2))-2
+        #     right = (right + ((text_width - box_width)/2))+2
+        # draw.rectangle(((left, bottom), (right, bottom + text_height+5)), fill=(0, 0, 255), outline=(0, 0, 255))
+        # draw.text((left + 3, bottom), name, fill=(255, 255, 255, 255),font=font)
 
     # date time in image
     now = datetime.now()
@@ -241,6 +245,34 @@ def show_prediction_labels_on_image(file_stream, pathToImageArchive, predictions
     else:
         return 'error'
 
+def drawRectangleAndName(draw,name,left,top,right,bottom,font,imHeight,imWidth):
+    # Draw a box around the face using the Pillow module
+    draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255),width=2)
+    # Draw a label with a name below the face
+    text_width, text_height = draw.textsize(name, font=font)
+    box_width = (right-left)
+    if(box_width < (text_width+5)):
+        left = (left - ((text_width - box_width)/2))-2
+        right = (right + ((text_width - box_width)/2))+2
+    #draw rectangle for name
+    if(left < 0):
+        print("face over left side")
+        left = right
+        right = right+text_width
+    elif (right > imWidth):
+        print("face over right side: left "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
+        right = left
+        left = left-text_width        
+        print("result: left : "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
+    if (bottom + text_height > imHeight):
+        print("face below bottom side: "+str(imHeight)+" bottom: "+str(bottom)+" textwidth: "+str(text_width)+" textheight: "+str(text_height)+" imHeight: "+str(imHeight))
+        bottom = top-text_height
+        
+    # print("Test: "+str(imHeight)+" bottom: "+str(bottom)+" textwidth: "+str(text_width)+str(text_width)+" textheight: "+str(text_height)+" imHeight: "+str(imHeight))
+    draw.rectangle(((left, bottom), (right, bottom + text_height+5)), fill=(0, 0, 255), outline=(0, 0, 255))
+    #draw text with name
+    draw.text((left + 3, bottom), name, fill=(255, 255, 255, 255),font=font)
+    return draw
 
 # if __name__ == "__main__":
 #     # STEP 1: Train the KNN classifier and save it to disk
