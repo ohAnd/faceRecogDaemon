@@ -118,6 +118,7 @@
                 newimg.src = "/static/img/loading.png";
                 if(element.imageTaggedLink == 'notFound') {
                     newimg.setAttribute("data-src",element.imageOriginalLink+[i]+'&rand=' + Math.random());
+                    newEditi.classList.add("w3-text-blue")
                 } else {
                     newimg.setAttribute("data-src",element.imageTaggedLink+[i]+'&rand=' + Math.random());
                 }
