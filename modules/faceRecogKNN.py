@@ -245,27 +245,31 @@ def show_prediction_labels_on_image(file_stream, pathToImageArchive, predictions
     else:
         return 'error'
 
-def drawRectangleAndName(draw,name,left,top,right,bottom,font,imHeight,imWidth):
+def drawRectangleAndName(draw,name,left_orig,top,right_orig,bottom,font,imHeight,imWidth):
+    # print("start: left : "+str(left_orig)+" right: "+str(right_orig))
     # Draw a box around the face using the Pillow module
-    draw.rectangle(((left, top), (right, bottom)), outline=(0, 0, 255),width=2)
+    draw.rectangle(((left_orig, top), (right_orig, bottom)), outline=(0, 0, 255),width=2)
+    
+    left = left_orig
+    right = right_orig
     # Draw a label with a name below the face
     text_width, text_height = draw.textsize(name, font=font)
     box_width = (right-left)
     if(box_width < (text_width+5)):
-        left = (left - ((text_width - box_width)/2))-2
-        right = (right + ((text_width - box_width)/2))+2
+         left = (left - ((text_width - box_width)/2))-2
+         right = (right + ((text_width - box_width)/2))+2
     #draw rectangle for name
     if(left < 0):
-        print("face over left side")
+        # print("face over left side")
         left = right
         right = right+text_width
     elif (right > imWidth):
-        print("face over right side: left "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
-        right = left
+        # print("face over right side: left "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
+        right = left_orig
         left = left-text_width        
-        print("result: left : "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
+        # print("result: left : "+str(left)+" right: "+str(right)+" textwidth: "+str(text_width)+" textheight: "+str(text_height))
     if (bottom + text_height > imHeight):
-        print("face below bottom side: "+str(imHeight)+" bottom: "+str(bottom)+" textwidth: "+str(text_width)+" textheight: "+str(text_height)+" imHeight: "+str(imHeight))
+        # print("face below bottom side: "+str(imHeight)+" bottom: "+str(bottom)+" textwidth: "+str(text_width)+" textheight: "+str(text_height)+" imHeight: "+str(imHeight))
         bottom = top-text_height
         
     # print("Test: "+str(imHeight)+" bottom: "+str(bottom)+" textwidth: "+str(text_width)+str(text_width)+" textheight: "+str(text_height)+" imHeight: "+str(imHeight))
