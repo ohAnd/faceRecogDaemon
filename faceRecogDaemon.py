@@ -246,9 +246,10 @@ def get_recent_image():
         pathFilename = pathToImageArchive+request.args.get('filename')
     elif 'number' in request.args:
         recentImageNumber = request.args.get('number')
-        pathFilename = imageHandling.getRecentFileOfDirectory(pathToImageArchive,recentImageNumber)
+        pathFilename = imageHandling.getRecentFileOfDirectory(pathToImageArchive+'/faces/tagged/',recentImageNumber,'jpg')
+        return send_file(pathFilename, mimetype='image/gif')
     else: # no args given, most recent image
-        pathFilename = imageHandling.getRecentFileOfDirectory(pathToImageArchive,0)
+        pathFilename = imageHandling.getRecentFileOfDirectory(pathToImageArchive+'/faces/tagged/',0)
     app.logger.info("/api/get_recent_image - given filename: "+pathFilename)
     # compose the response
     if not os.path.isfile(pathFilename):

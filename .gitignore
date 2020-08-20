@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 config.ini
 .vscode/settings.json
+.vscode/tasks.json
