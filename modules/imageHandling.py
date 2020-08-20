@@ -51,8 +51,8 @@ def getImageFromRTSP(capture):
     print (str(datetime.now().strftime("%Y%m%d_%H%M%S.%f"))+" -     2 done  rtsp frame - needed: "+processTime)
     return stream
 
-def getRecentFileOfDirectory(pathToImageArchive,num):  
-  files_path = pathToImageArchive+'/*.png' # * means all if need specific format then *.csv
+def getRecentFileOfDirectory(pathToImageArchive,num,type='png'):  
+  files_path = pathToImageArchive+'/*.'+type # * means all if need specific format then *.csv
   files = sorted(glob.iglob(files_path), key=os.path.getctime, reverse=True)
   if int(num) >= len(files):
     return 'notFound'
