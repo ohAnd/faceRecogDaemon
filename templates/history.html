@@ -24,12 +24,12 @@
 
 <script type="text/javascript" language="javascript">
     var globalPersons = '';
-    var maxImagesToShow = 200;
-    var maxImagesInHistory = 0;
+    var maxImagesToShow = 400;
+    var maxImagesInHistory = 100;
     var imagesPerPage = 10;
 
     // build the overview at page first loading with 20 images on page
-    buildHistoryImage(1,imagesPerPage,1);
+    buildHistoryImage(0,imagesPerPage,1);
 
     function createPagination(maxImagesInHistory,actualPage){
         var myPaginationTop = document.getElementById("paginationHistoryTop");
@@ -58,7 +58,9 @@
 
 
     function createImageOverview(recentImageData,numStartOfImages,numEndOfImages) {
-        maxImagesInHistory = recentImageData.overallRecognitons;
+        if(maxImagesInHistory > recentImageData.overallRecognitons) {
+            maxImagesInHistory = recentImageData.overallRecognitons;
+        }        
         window.fetch('http://'+window.location.host+'/api/training?getdata=true')
             .then(function(response){
                 return response.json();
@@ -69,7 +71,7 @@
         var imageNo=0;
         recentImageData.recentImages.forEach(element => {
             imageNo++;
-            if(imageNo >= numStartOfImages && imageNo <= numEndOfImages) {
+            if(imageNo > numStartOfImages && imageNo <= numEndOfImages) {
                 var newdiv = document.createElement("div");
                 newdiv.className = "w3-display-container w3-center w3-padding";
 
